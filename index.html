@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#153d63">
+<title>SIPGIZI SARASWATI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#243447}
+header{background:#153d63;color:white;padding:22px 18px}
+header h2{margin:0 0 5px}
+header p{margin:0;font-size:13px}
+main{padding:16px;max-width:900px;margin:auto}
+.notice{background:#fff3cd;padding:12px;border-radius:9px;font-size:12px;margin-bottom:15px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:white;padding:16px;border-radius:12px;box-shadow:0 2px 7px #0000000b}
+.number{font-size:26px;font-weight:bold;color:#1767a5;margin-top:8px}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+nav button,.action{border:0;border-radius:9px;padding:12px;background:#e1ebf5;color:#153d63;font-weight:bold}
+nav button.active,.action{background:#1767a5;color:white}
+section{display:none;background:white;padding:16px;border-radius:12px}
+section.active{display:block}
+h3{margin-top:0}
+input,select{width:100%;padding:12px;border:1px solid #ccd5df;border-radius:8px;margin:6px 0 12px;font-size:14px}
+label{font-size:13px;font-weight:bold}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left}
+th{background:#eaf1f8}
+.small{font-size:12px;color:#667}
+footer{text-align:center;padding:25px;color:#667;font-size:12px}
+@media(min-width:650px){.cards{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h2>🏥 SIPGIZI SARASWATI</h2>
+<p>Sistem Informasi Pelayanan Gizi RSU Saraswati</p>
+<p>Dashboard Instalasi Gizi</p>
+</header>
+
+<main>
+<div class="notice">
+<strong>MODE DEMO</strong><br>
+Gunakan data fiktif. Aplikasi ini belum terhubung ke database rumah sakit.
+</div>
+
+<div class="cards">
+<div class="card">👥 Total Pasien<div class="number" id="total">3</div></div>
+<div class="card">🍽️ Total Porsi<div class="number" id="porsi">3</div></div>
+<div class="card">⏳ Belum Dibagikan<div class="number" id="belum">3</div></div>
+<div class="card">✅ Sudah Dibagikan<div class="number" id="sudah">0</div></div>
+</div>
+
+<nav>
+<button class="active" onclick="buka('beranda',this)">Beranda</button>
+<button onclick="buka('pasien',this)">Data Pasien</button>
+<button onclick="buka('distribusi',this)">Distribusi</button>
+<button onclick="buka('dapur',this)">Dapur</button>
+<button onclick="buka('laporan',this)">Laporan</button>
+<button onclick="buka('tentang',this)">Tentang</button>
+</nav>
+
+<section id="beranda" class="active">
+<h3>Selamat Datang</h3>
+<p>Selamat bekerja untuk seluruh petugas Instalasi Gizi RSU Saraswati.</p>
+<p>Silakan pilih menu untuk mengelola simulasi pelayanan makanan pasien.</p>
+</section>
+
+<section id="pasien">
+<h3>Input Data Pasien Demo</h3>
+<label>Nama pasien fiktif</label>
+<input id="nama" placeholder="Contoh: Pasien Contoh A">
+<label>Ruangan</label>
+<input id="ruang" placeholder="Contoh: Ruang Melati">
+<label>Nomor kamar</label>
+<input id="kamar" placeholder="Contoh: 101">
+<label>Jenis diet</label>
+<select id="diet">
+<option>Diet biasa</option>
+<option>Diet rendah garam</option>
+<option>Diet diabetes</option>
+<option>Diet lunak</option>
+<option>Diet cair</option>
+</select>
+<label>Waktu makan</label>
+<select id="makan">
+<option>Pagi</option><option>Siang</option><option>Malam</option>
+<option>Snack pagi</option><option>Snack sore</option>
+</select>
+<button class="action" onclick="tambah()">+ Simpan Pasien Demo</button>
+<p class="small">Data hanya tersimpan pada browser HP ini.</p>
+</section>
+
+<section id="distribusi">
+<h3>Distribusi Makanan</h3>
+<div style="overflow-x:auto">
+<table>
+<thead><tr><th>Pasien</th><th>Ruangan</th><th>Diet</th><th>Status</th></tr></thead>
+<tbody id="daftar"></tbody>
+</table>
+</div>
+</section>
+
+<section id="dapur">
+<h3>Persiapan Dapur</h3>
+<p>Daftar jumlah kebutuhan makanan berdasarkan data demo.</p>
+<div id="rekap"></div>
+</section>
+
+<section id="laporan">
+<h3>Laporan Distribusi</h3>
+<div id="hasil"></div>
+<button class="action" onclick="window.print()">Cetak / Simpan PDF</button>
+</section>
+
+<section id="tentang">
+<h3>Tentang Aplikasi</h3>
+<p><b>SIPGIZI SARASWATI</b></p>
+<p>Sistem informasi untuk membantu pekerjaan Ahli Gizi, Juru Masak, dan Pramusaji.</p>
+<p>Versi: Prototype 1.0</p>
+<p>Pengembang: Proyek pembelajaran SIPGIZI SARASWATI.</p>
+</section>
+</main>
+
+<footer>© SIPGIZI SARASWATI — Prototype</footer>
+
+<script>
+let data=JSON.parse(localStorage.getItem("sipgizi_demo")||"null")||[
+{nama:"Pasien Contoh A",ruang:"Melati",kamar:"101",diet:"Diet biasa",makan:"Pagi",status:false},
+{nama:"Pasien Contoh B",ruang:"Mawar",kamar:"102",diet:"Diet lunak",makan:"Pagi",status:false},
+{nama:"Pasien Contoh C",ruang:"Anggrek",kamar:"103",diet:"Diet diabetes",makan:"Pagi",status:false}
+];
+
+function simpan(){
+localStorage.setItem("sipgizi_demo",JSON.stringify(data));
+tampil();
+}
+function buka(id,btn){
+document.querySelectorAll("section").forEach(x=>x.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+btn.classList.add("active");
+}
+function tambah(){
+let nama=document.getElementById("nama").value.trim();
+let ruang=document.getElementById("ruang").value.trim();
+let kamar=document.getElementById("kamar").value.trim();
+if(!nama||!ruang||!kamar){alert("Lengkapi semua data!");return;}
+data.push({
+nama,ruang,kamar,
+diet:document.getElementById("diet").value,
+makan:document.getElementById("makan").value,
+status:false
+});
+simpan();
+document.getElementById("nama").value="";
+document.getElementById("ruang").value="";
+document.getElementById("kamar").value="";
+alert("Data demo berhasil disimpan.");
+}
+function ubahStatus(i){
+data[i].status=!data[i].status;
+simpan();
+}
+function tampil(){
+let sudah=data.filter(x=>x.status).length;
+document.getElementById("total").textContent=data.length;
+document.getElementById("porsi").textContent=data.length;
+document.getElementById("sudah").textContent=sudah;
+document.getElementById("belum").textContent=data.length-sudah;
+document.getElementById("daftar").innerHTML=data.map((x,i)=>
+`<tr><td>${aman(x.nama)}</td><td>${aman(x.ruang)} ${aman(x.kamar)}</td><td>${aman(x.diet)}</td><td><button onclick="ubahStatus(${i})">${x.status?"Sudah ✓":"Belum"}</button></td></tr>`
+).join("");
+document.getElementById("rekap").innerHTML=
+["Pagi","Siang","Malam","Snack pagi","Snack sore"].map(m=>
+`<p>${m}: <b>${data.filter(x=>x.makan===m).length} porsi</b></p>`
+).join("");
+document.getElementById("hasil").innerHTML=
+`Total pasien: ${data.length}<br>Sudah dibagikan: ${sudah}<br>Belum dibagikan: ${data.length-sudah}`;
+}
+function aman(t){
+return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+tampil();
+</script>
+</body>
+</html>
