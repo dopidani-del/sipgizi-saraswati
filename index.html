@@ -76,6 +76,7 @@ let data=JSON.parse(localStorage.getItem(KEY)||"null") || [
 
 let pengguna="";
 let jabatan="";
+ let jadwal=JSON.parse(localStorage.getItem("sipgiziJadwal")||"[]");
 
 function simpan(){
  localStorage.setItem(KEY,JSON.stringify(data));
@@ -105,7 +106,7 @@ function keluar(){
 }
 
 function buatMenu(){
- let daftar=["Beranda"];
+ let daftar=["Beranda"];daftar.push("Jadwal Petugas");
  if(jabatan==="Ahli Gizi") daftar.push("Data Pasien","Laporan");
  if(jabatan==="Juru Masak") daftar.push("Dapur");
  if(jabatan==="Pramusaji") daftar.push("Distribusi");
@@ -169,6 +170,35 @@ function tampil(halaman){
   <button onclick="window.print()">Cetak / Simpan PDF</button>
   ${tabelPasien(false)}</div>`;
  }
+  else if(halaman==="Jadwal Petugas"){
+ area.innerHTML=`
+ <div class="card">
+ <h3>Jadwal Kerja Petugas</h3>
+ ${jabatan==="Kepala Instalasi"?`
+ <input id="jNama" placeholder="Nama petugas">
+ <input id="jTanggal" type="date">
+ <select id="jShift">
+ <option>Pagi</option>
+ <option>Siang</option>
+ <option>Libur</option>
+ </select>
+ <button onclick="tambahJadwal()">Simpan Jadwal</button>
+ `:"<p>Jadwal petugas Instalasi Gizi.</p>"}
+ <div class="tablewrap">
+ <table>
+ <tr><th>Nama</th><th>Tanggal</th><th>Shift</th>
+ ${jabatan==="Kepala Instalasi"?"<th>Aksi</th>":""}</tr>
+ ${jadwal.map((j,i)=>`
+ <tr><td>${aman(j.nama)}</td>
+ <td>${aman(j.tanggal)}</td>
+ <td>${aman(j.shift)}</td>
+ ${jabatan==="Kepala Instalasi"?
+ `<td><button class="danger" onclick="hapusJadwal(${i})">Hapus</button></td>`:""}
+ </tr>`).join("")}
+ </table>
+ </div>
+ </div>`;
+  }
  else if(halaman==="Tentang"){
   area.innerHTML=`<div class="card"><h3>Tentang Aplikasi</h3>
   <p>SIPGIZI SARASWATI – prototipe pembelajaran alur kerja Instalasi Gizi.</p>
@@ -215,6 +245,31 @@ function aman(teks){
  return String(teks).replace(/[&<>"']/g,c=>({
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  }[c]));
+}
+ function tambahJadwal(){
+ let nama=document.getElementById("jNama").value.trim();
+ let tanggal=document.getElementById("jTanggal").value;
+ let shift=document.getElementById("jShift").value;
+
+ if(jabatan!=="Kepala Instalasi")return;
+
+ if(!nama||!tanggal){
+  alert("Isi nama dan tanggal jadwal.");
+  return;
+ }
+
+ jadwal.push({nama,tanggal,shift});
+ localStorage.setItem("sipgiziJadwal",JSON.stringify(jadwal));
+ tampil("Jadwal Petugas");
+}
+
+function hapusJadwal(i){
+ if(jabatan!=="Kepala Instalasi")return;
+ if(confirm("Hapus jadwal ini?")){
+  jadwal.splice(i,1);
+  localStorage.setItem("sipgiziJadwal",JSON.stringify(jadwal));
+  tampil("Jadwal Petugas");
+ }
 }
 </script>
 </body>
