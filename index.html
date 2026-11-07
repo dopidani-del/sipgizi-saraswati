@@ -162,14 +162,63 @@ function tampil(halaman){
   <p>Porsi malam: <b>${malam}</b></p>
   <h3>Daftar Diet</h3>${tabelPasien(false)}</div>`;
  }
- else if((halaman==="Laporan" && (jabatan==="Ahli Gizi"||jabatan==="Kepala Instalasi")) || (halaman==="Monitoring" && jabatan==="Kepala Instalasi")){
-  area.innerHTML=`<div class="card"><h3>${halaman}</h3>
-  <p>Total data pasien demo: <b>${data.length}</b></p>
-  <p>Sudah didistribusikan: <b>${data.filter(x=>x.status==="Sudah").length}</b></p>
-  <p>Belum didistribusikan: <b>${data.filter(x=>x.status!=="Sudah").length}</b></p>
+ 
+else if((halaman==="Laporan" && (jabatan==="Ahli Gizi"||jabatan==="Kepala Instalasi")) || (halaman==="Monitoring" && jabatan==="Kepala Instalasi")){
+
+ let total=data.length;
+ let selesai=data.filter(x=>x.status==="Sudah").length;
+ let belum=total-selesai;
+ let persen=total?Math.round(selesai/total*100):0;
+
+ let rekap=["Pagi","Siang","Malam"].map(w=>{
+  let daftar=data.filter(x=>x.waktu===w);
+  let terkirim=daftar.filter(x=>x.status==="Sudah").length;
+  return `
+  <tr>
+   <td>${w}</td>
+   <td>${daftar.length}</td>
+   <td>${terkirim}</td>
+   <td>${daftar.length-terkirim}</td>
+  </tr>`;
+ }).join("");
+
+ area.innerHTML=`
+ <div class="card">
+  <h3>${halaman} Distribusi Makanan</h3>
+
+  <div class="stat">
+   <div><b>${total}</b><br>Total porsi demo</div>
+   <div><b>${selesai}</b><br>Sudah dikirim</div>
+   <div><b>${belum}</b><br>Belum dikirim</div>
+   <div><b>${persen}%</b><br>Persentase distribusi</div>
+  </div>
+
+  <h3>Rekap Berdasarkan Waktu Makan</h3>
+  <div class="tablewrap">
+   <table>
+    <tr>
+     <th>Waktu</th>
+     <th>Total</th>
+     <th>Sudah</th>
+     <th>Belum</th>
+    </tr>
+    ${rekap}
+   </table>
+  </div>
+
+  <h3>Progres Distribusi</h3>
+  <div style="background:#ddd;border-radius:10px;height:18px;overflow:hidden">
+   <div style="width:${persen}%;background:#087f6b;height:18px"></div>
+  </div>
+  <p><b>${persen}%</b> makanan telah didistribusikan.</p>
+
+  <h3>Detail Distribusi</h3>
+  ${tabelPasien(false)}
+
   <button onclick="window.print()">Cetak / Simpan PDF</button>
-  ${tabelPasien(false)}</div>`;
- }
+ </div>`;
+}
+
   else if(halaman==="Jadwal Petugas"){
  area.innerHTML=`
  <div class="card">
